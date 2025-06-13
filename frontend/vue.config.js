@@ -1,35 +1,31 @@
 const { defineConfig } = require("@vue/cli-service");
+const path = require("path");
 
 module.exports = defineConfig({
   transpileDependencies: [],
 
-  // Remove the entire 'css' block that was here
-  // css: {
-  //   loaderOptions: {
-  //     postcss: {
-  //       postcssOptions: {
-  //         plugins: [require("tailwindcss"), require("autoprefixer")],
-  //       },
-  //     },
-  //   },
-  // },
-
-  // Development server configuration
+  // Development server config
   devServer: {
-  port: 8080,
-  open: true,
-  proxy: {
-    "/api": {
-      target: "http://localhost:8000", // Change this to match your backend port
-      changeOrigin: true,
-      pathRewrite: { "^/api": "/api" },
+    port: 8080,
+    open: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        pathRewrite: { "^/api": "/api" },
+      },
     },
   },
-},
 
-
-  // Performance optimization
-  chainWebpack: (config) => {
-    config.resolve.alias.set("@", require("path").resolve(__dirname, "src"));
+  // Add feature flags here
+  configureWebpack: {
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "src"),
+      },
+    },
+    define: {
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+    },
   },
 });

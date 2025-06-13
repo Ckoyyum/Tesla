@@ -12,8 +12,6 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/register", component: Register },
   { path: "/about", component: About },
-
-  // Dashboard routes
   { path: "/organizer-dashboard", component: OrganizerDashboard },
   { path: "/vendor-dashboard", component: VendorDashboard },
   { path: "/venue-owner-dashboard", component: VenueOwnerDashboard },

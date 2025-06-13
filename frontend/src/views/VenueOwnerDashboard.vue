@@ -1,147 +1,123 @@
-<!-- src/views/dashboards/VenueOwnerDashboard.vue -->
 <template>
-  <section class="p-6 space-y-10">
-    <!-- Greeting -->
-    <header>
-      <h2 class="text-2xl font-semibold">Venue-Owner Dashboard</h2>
-      <p class="mt-1 text-lg">Welcome, {{ user.username }}! 🏛️</p>
-    </header>
+  <div class="venue-owner-dashboard">
+    <div class="container">
+      <h1>Welcome, {{ user.name || "Venue Owner" }}</h1>
 
-    <!-- 1) BOOKINGS TABLE -->
-    <div>
-      <h3 class="text-xl font-medium mb-4">Booking Requests</h3>
-
-      <!-- loading / error states -->
-      <p v-if="loading">Loading bookings …</p>
-      <p v-else-if="error" class="text-red-500">{{ error }}</p>
-
-      <!-- bookings list -->
-      <table v-if="bookings.length" class="w-full text-left border-collapse">
-        <thead class="bg-gray-800 text-white">
-          <tr>
-            <th class="p-3">Title</th>
-            <th class="p-3">Organizer</th>
-            <th class="p-3">Start</th>
-            <th class="p-3">End</th>
-            <th class="p-3">Status</th>
-            <th class="p-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="b in bookings"
-            :key="b.id"
-            class="odd:bg-gray-100 even:bg-gray-50"
+      <!-- BOOKINGS SECTION -->
+      <section class="section">
+        <h2>Your Bookings</h2>
+        <div v-if="loading" class="loading">Loading bookings...</div>
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <div v-else-if="bookings.length === 0">No bookings yet.</div>
+        <ul v-else class="booking-list">
+          <li
+            v-for="booking in bookings"
+            :key="booking.id"
+            class="booking-card"
           >
-            <td class="p-3">{{ b.title }}</td>
-            <td class="p-3">{{ b.organizer_name }}</td>
-            <td class="p-3">{{ formatDate(b.start_date) }}</td>
-            <td class="p-3">{{ formatDate(b.end_date) }}</td>
-            <td class="p-3 capitalize">
-              <span
-                :class="{
-                  'text-yellow-600': b.status === 'pending',
-                  'text-green-600': b.status === 'approved',
-                  'text-red-600': b.status === 'rejected',
-                }"
-              >
-                {{ b.status }}
-              </span>
-            </td>
-            <td class="p-3 space-x-2">
-              <!-- Show buttons only when status is pending -->
+            <p><strong>Venue:</strong> {{ booking.venueName }}</p>
+            <p><strong>Date:</strong> {{ formatDate(booking.date) }}</p>
+            <p><strong>Status:</strong> {{ booking.status }}</p>
+            <div class="booking-actions" v-if="booking.status === 'pending'">
               <button
-                v-if="b.status === 'pending'"
-                @click="approve(b.id)"
-                class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                @click="approve(booking.id)"
+                :disabled="processingBooking === booking.id"
               >
                 Approve
               </button>
               <button
-                v-if="b.status === 'pending'"
-                @click="reject(b.id)"
-                class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                @click="reject(booking.id)"
+                :disabled="processingBooking === booking.id"
               >
                 Reject
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </li>
+        </ul>
+      </section>
 
-      <p v-else-if="!loading">No bookings yet 🎉</p>
+      <!-- ADD VENUE SECTION -->
+      <section class="section">
+        <h2>Add a New Venue</h2>
+        <form @submit.prevent="addVenue" class="venue-form">
+          <input v-model="venueForm.name" placeholder="Venue Name" required />
+          <textarea
+            v-model="venueForm.description"
+            placeholder="Description"
+            rows="3"
+          ></textarea>
+          <input v-model="venueForm.address" placeholder="Address" />
+          <input
+            v-model.number="venueForm.capacity"
+            type="number"
+            placeholder="Capacity"
+          />
+          <input
+            v-model.number="venueForm.price"
+            type="number"
+            placeholder="Price"
+            required
+          />
+          <input
+            type="file"
+            @change="handleImage"
+            ref="imageInput"
+            accept="image/*"
+          />
+
+          <div v-if="imagePreview" class="image-preview">
+            <p>Preview:</p>
+            <img :src="imagePreview" alt="Venue Image" />
+          </div>
+
+          <button type="submit" :disabled="venueSubmitting">
+            {{ venueSubmitting ? "Adding..." : "Add Venue" }}
+          </button>
+        </form>
+      </section>
+
+      <!-- VENUE LIST SECTION -->
+      <section class="section">
+        <h2>Your Venues</h2>
+        <div v-if="venues.length === 0">No venues added yet.</div>
+        <ul v-else class="venue-list">
+          <li v-for="venue in venues" :key="venue.id" class="venue-card">
+            <p>
+              <strong>{{ venue.name }}</strong>
+            </p>
+            <p>Price: ${{ venue.price }}</p>
+            <p>Capacity: {{ venue.capacity }}</p>
+          </li>
+        </ul>
+      </section>
     </div>
-
-    <!-- 2) ADD VENUE FORM -->
-    <div class="max-w-lg">
-      <h3 class="text-xl font-medium mb-4">Add a New Venue</h3>
-
-      <form @submit.prevent="addVenue" class="space-y-4">
-        <input
-          v-model="venueForm.name"
-          type="text"
-          placeholder="Name"
-          required
-          class="w-full p-2 border rounded"
-        />
-
-        <textarea
-          v-model="venueForm.description"
-          placeholder="Description"
-          required
-          class="w-full p-2 border rounded"
-        />
-
-        <input
-          v-model.number="venueForm.price"
-          type="number"
-          step="0.01"
-          placeholder="Price (e.g. 500.00)"
-          required
-          class="w-full p-2 border rounded"
-        />
-
-        <input
-          @change="handleImage"
-          type="file"
-          accept="image/*"
-          required
-          class="w-full"
-        />
-
-        <button
-          :disabled="venueSubmitting"
-          type="submit"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {{ venueSubmitting ? "Adding…" : "Add Venue" }}
-        </button>
-      </form>
-    </div>
-  </section>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
 
 export default {
-  name: "VenueOwnerDashboard",
-
+  name: "venue-owner-dashboard",
   data() {
     return {
       bookings: [],
+      venues: [],
       loading: false,
       error: "",
       venueSubmitting: false,
+      processingBooking: null,
+      imagePreview: null,
       venueForm: {
         name: "",
         description: "",
+        address: "",
+        capacity: null,
         price: null,
         image: null,
       },
     };
   },
-
   computed: {
     user() {
       return JSON.parse(localStorage.getItem("user") || "{}");
@@ -151,15 +127,16 @@ export default {
       return t ? { Authorization: `Bearer ${t}` } : {};
     },
   },
-
   methods: {
-    /* ---------- BOOKINGS ---------- */
     async fetchBookings() {
       this.loading = true;
+      this.error = "";
       try {
         const { data } = await axios.get(
           "http://localhost:8000/owner/bookings",
-          { headers: this.authHeaders }
+          {
+            headers: this.authHeaders,
+          }
         );
         this.bookings = data;
       } catch (err) {
@@ -168,56 +145,111 @@ export default {
         this.loading = false;
       }
     },
-
     async approve(id) {
+      this.processingBooking = id;
       try {
         await axios.post(
           `http://localhost:8000/owner/bookings/${id}/approve`,
           {},
-          { headers: this.authHeaders }
+          {
+            headers: this.authHeaders,
+          }
         );
         this.updateBookingStatus(id, "approved");
+        this.$toast?.success("Booking approved successfully!");
       } catch (e) {
         alert(e.response?.data?.message || "Could not approve booking.");
+      } finally {
+        this.processingBooking = null;
       }
     },
-
     async reject(id) {
+      this.processingBooking = id;
       try {
         await axios.post(
           `http://localhost:8000/owner/bookings/${id}/reject`,
           {},
-          { headers: this.authHeaders }
+          {
+            headers: this.authHeaders,
+          }
         );
         this.updateBookingStatus(id, "rejected");
+        this.$toast?.success("Booking rejected successfully!");
       } catch (e) {
         alert(e.response?.data?.message || "Could not reject booking.");
+      } finally {
+        this.processingBooking = null;
       }
     },
-
     updateBookingStatus(id, status) {
       this.bookings = this.bookings.map((b) =>
         b.id === id ? { ...b, status } : b
       );
     },
-
     formatDate(dt) {
       const d = new Date(dt);
       return d.toLocaleString();
     },
-
-    /* ---------- ADD VENUE ---------- */
-    handleImage(e) {
-      this.venueForm.image = e.target.files[0];
+    async fetchVenues() {
+      try {
+        const { data } = await axios.get("http://localhost:8000/owner/venues", {
+          headers: this.authHeaders,
+        });
+        this.venues = data;
+      } catch (err) {
+        console.error("Failed to load venues:", err);
+      }
     },
+    handleImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Please upload a valid image file (JPEG, PNG, or GIF).");
+        this.resetImageInput();
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be less than 5MB.");
+        this.resetImageInput();
+        return;
+      }
+
+      this.venueForm.image = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    resetImageInput() {
+      if (this.$refs.imageInput) {
+        this.$refs.imageInput.value = "";
+      }
+      this.venueForm.image = null;
+      this.imagePreview = null;
+    },
     async addVenue() {
-      if (!this.venueForm.image) return alert("Please choose an image.");
+      const { name, price, image } = this.venueForm;
+      if (!name || !price || !image) {
+        alert("Please fill in all required fields and choose an image.");
+        return;
+      }
+
       this.venueSubmitting = true;
       try {
         const fd = new FormData();
-        fd.append("name", this.venueForm.name);
-        fd.append("description", this.venueForm.description);
+        fd.append("name", this.venueForm.name.trim());
+        fd.append("description", this.venueForm.description?.trim() || "");
+        fd.append("address", this.venueForm.address?.trim() || "");
+        fd.append("capacity", this.venueForm.capacity || 0);
         fd.append("price", this.venueForm.price);
         fd.append("image", this.venueForm.image);
 
@@ -228,27 +260,80 @@ export default {
           },
         });
 
+        this.$toast?.success("Venue added successfully!");
         alert("Venue added successfully!");
+
         this.venueForm = {
           name: "",
           description: "",
+          address: "",
+          capacity: null,
           price: null,
           image: null,
         };
+        this.resetImageInput();
+        this.fetchVenues();
       } catch (err) {
-        alert(err.response?.data?.message || "Unable to add venue.");
+        console.error("Add venue error:", err);
+        const msg = err.response?.data?.message || "Unable to add venue.";
+        this.$toast?.error(msg);
+        alert(msg);
       } finally {
         this.venueSubmitting = false;
       }
     },
   },
-
   created() {
     this.fetchBookings();
+    this.fetchVenues();
   },
 };
 </script>
 
 <style scoped>
-/* Add or reuse styles as you like (see your earlier navbar CSS) */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+.section {
+  margin-top: 2rem;
+}
+.venue-form input,
+.venue-form textarea {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.booking-list,
+.venue-list {
+  list-style: none;
+  padding: 0;
+}
+.booking-card,
+.venue-card {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+.booking-actions button {
+  margin-right: 1rem;
+}
+.image-preview img {
+  max-width: 200px;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+}
+.error {
+  color: red;
+}
+.loading {
+  font-style: italic;
+}
 </style>
