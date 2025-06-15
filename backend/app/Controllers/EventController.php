@@ -17,7 +17,7 @@ class EventController
         if ($user->role !== 'organizer') {
             return $this->json($response, ['message' => 'Unauthorized'], 403);
         }
-        
+
         $events = Event::with('venue')
             ->where('organizer_id', $user->id)
             ->orderBy('start_date', 'desc')
@@ -62,6 +62,30 @@ class EventController
         return $this->json($response, $event, 201);
     }
 
+    public function createEvent2(Request $request, Response $response)
+    {
+        $user = $request->getAttribute('user');
+
+        if ($user->role !== 'organizer') {
+            return $this->json($response, ['message' => 'Unauthorized'], 403);
+        }
+
+        $data = (array)$request->getParsedBody();
+
+        $event = new Event();
+        $event->organizer_id = $user->id;
+        $event->title = $data['title'];
+        $event->description = $data['description'];
+        $event->start_date = $data['start_date'];
+        $event->end_date = $data['end_date'];
+        $event->venue_id = $data['venue_id'];
+
+        $event->save();
+
+        return $this->json($response, $event, 201);
+    }
+
+
     /* ---------- READ ---------- */
     public function getEvent(Request $request, Response $response, array $args)
     {
@@ -90,6 +114,38 @@ class EventController
         $event->save();
 
         return $this->json($response, $event);
+    }
+
+    public function updateEvent2(Request $request, Response $response, array $args)
+    {
+        $user = $request->getAttribute('user');
+
+        if ($user->role !== 'organizer') {
+            return $this->json($response, ['message' => 'Unauthorized'], 403);
+        }
+
+        $eventId = $args['id'];
+        $event = Event::find($eventId);
+
+        if (!$event) {
+            return $this->json($response, ['message' => 'Event not found'], 404);
+        }
+
+        if ($event->organizer_id !== $user->id) {
+            return $this->json($response, ['message' => 'Unauthorized: You can only edit your own events'], 403);
+        }
+
+        $data = (array)$request->getParsedBody();
+
+        $event->title = $data['title'] ?? $event->title;
+        $event->description = $data['description'] ?? $event->description;
+        $event->start_date = $data['start_date'] ?? $event->start_date;
+        $event->end_date = $data['end_date'] ?? $event->end_date;
+        $event->venue_id = $data['venue_id'] ?? $event->venue_id;
+
+        $event->save();
+
+        return $this->json($response, $event, 200);
     }
 
     /* ---------- DELETE ---------- */

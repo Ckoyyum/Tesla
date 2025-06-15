@@ -202,4 +202,14 @@ class AuthController
             'role' => $user->role,
         ], 200);
     }
+
+    public function getUsers(Request $request, Response $response)
+    {
+        // $users = User::all(); // Gets all fields for all users
+
+        $users = User::all()->toArray();
+
+
+        return $this->jsonResponse($response, $users, 200);
+    }
 }

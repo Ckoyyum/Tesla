@@ -9,6 +9,9 @@ import SignIn from "@/views/SignIn.vue";
 import SignUp from "@/views/SignUp.vue";
 import OrganizerDashboard from "@/views/OrganizerDashboard.vue";
 import OrganizerEvents from "@/views/OrganizerEvents.vue";
+import OrganizerVenues from "@/views/OrganizerVenues.vue";
+import OrganizerVendors from "@/views/OrganizerVendors.vue";
+import SignOut from "@/views/SignOut.vue";
 
 const routes = [
   {
@@ -57,6 +60,11 @@ const routes = [
     component: SignUp,
   },
   {
+    path: "/sign-out",
+    name: "Sign Out",
+    component: SignOut,
+  },
+  {
     path: "/organizer-dashboard",
     name: "Organizer Dashboard",
     component: OrganizerDashboard,
@@ -65,6 +73,16 @@ const routes = [
     path: "/organizer-events",
     name: "Organizer Events",
     component: OrganizerEvents,
+  },
+  {
+    path: "/organizer-venues",
+    name: "Venues",
+    component: OrganizerVenues,
+  },
+  {
+    path: "/organizer-vendors",
+    name: "Vendors",
+    component: OrganizerVendors,
   },
 ];
 

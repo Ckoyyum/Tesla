@@ -13,7 +13,15 @@
         </sidenav-collapse>
       </li>
 
+      
       <!-- Always visible -->
+       <!-- <li class="nav-item">
+        <sidenav-collapse navText="Sign Out" @click="signOut">
+          <template #icon>
+            <logout-icon />
+          </template>
+        </sidenav-collapse>
+      </li> -->
       <!-- <li class="nav-item">
         <sidenav-collapse navText="RTL" :to="{ name: 'Rtl' }">
           <template #icon>
@@ -85,6 +93,7 @@ import CustomerSupport from "../../components/Icon/CustomerSupport.vue";
 import Document from "../../components/Icon/Document.vue";
 import Spaceship from "../../components/Icon/Spaceship.vue";
 import Settings from "../../components/Icon/Settings.vue";
+import LogoutIcon from "../../components/Icon/Logout.vue";
 
 export default {
   name: "SidenavList",
@@ -102,6 +111,7 @@ export default {
     Document,
     Spaceship,
     Settings,
+    LogoutIcon
   },
   data() {
     return {
@@ -119,6 +129,9 @@ export default {
         organizer: [
           { text: "Dashboard", name: "Organizer Dashboard", icon: "Shop" },
           { text: "Events", name: "Organizer Events", icon: "Shop" },
+          { text: "Venues", name: "Venues", icon: "Shop" },
+          { text: "Vendor Services", name: "Vendors", icon: "Shop" },
+          { text: "Sign Out", name: "Sign Out", icon: "Shop" },
         ],
       },
     };
@@ -126,6 +139,17 @@ export default {
   methods: {
     resolveIcon(icon) {
       return this.$options.components[icon];
+    },
+    signOut() {
+      try {
+        console.log("Sign out triggered");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        console.log("Local storage cleared:", localStorage.getItem("token"), localStorage.getItem("user"));
+        this.$router.push({ name: "Sign In" });
+      } catch (error) {
+        console.error("Sign out error:", error);
+      }
     },
   },
 };

@@ -33,6 +33,10 @@ $app->post('/login', AuthController::class . ':login');
 // --- Authenticated Routes Group (/api) ---
 $app->group('/api', function ($group) {
 
+    // users
+    $group->get('/getusers', AuthController::class . ':getUsers');
+
+
     // --- Event Routes ---
     $group->get('/events', EventController::class . ':index');
     $group->post('/events', EventController::class . ':createEvent');
@@ -44,17 +48,21 @@ $app->group('/api', function ($group) {
     // Organizer-scoped events
     $group->group('/organizer', function ($organizerGroup) {
         $organizerGroup->get('/events', EventController::class . ':getMyEvents');
+        $organizerGroup->post('/events', EventController::class . ':createEvent2');
+        $organizerGroup->put('/events/{id}', EventController::class . ':updateEvent2');
     });
 
     // --- Vendor Routes ---
-    $group->get('/vendors', VendorController::class . ':index');
+    // $group->get('/vendors', VendorController::class . ':index');
+    $group->get('/vendor-services', VendorController::class . ':getVendorServices');
     $group->get('/vendors/{id}', VendorController::class . ':show');
     $group->post('/vendors', VendorController::class . ':store');
     $group->put('/vendors/{id}', VendorController::class . ':update');
     $group->delete('/vendors/{id}', VendorController::class . ':destroy');
 
     // --- Venue Routes ---
-    $group->get('/venues', VenueController::class . ':index');
+    // $group->get('/venues', VenueController::class . ':index');
+    $group->get('/venues', VenueController::class . ':getVenues');
     $group->get('/venues/{id}', VenueController::class . ':show');
     $group->post('/venues', VenueController::class . ':store');
     $group->put('/venues/{id}', VenueController::class . ':update');

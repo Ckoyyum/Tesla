@@ -29,9 +29,6 @@
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
                   End
                 </th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
-                  Venue
-                </th>
                 <th class="text-secondary opacity-7 text-center">Actions</th>
               </tr>
             </thead>
@@ -50,9 +47,6 @@
                 </td>
                 <td class="align-middle text-center">
                   <span class="text-xs font-weight-bold">{{ formatDate(event.end_date) }}</span>
-                </td>
-                <td class="align-middle text-center">
-                  <span class="text-xs font-weight-bold">{{ event.venue ? event.venue.name : 'N/A' }}</span>
                 </td>
                 <td class="align-middle text-center">
                   <a
@@ -78,17 +72,8 @@
         <form @submit.prevent="isEditMode ? updateEvent() : createEvent()">
           <soft-input v-model="form.title" label="Title" />
           <soft-input v-model="form.description" label="Description" />
-          <soft-input v-model="form.start_date" label="Start Date & Time" type="datetime-local"  />
+          <soft-input v-model="form.start_date" label="Start Date & Time" type="datetime-local" />
           <soft-input v-model="form.end_date" label="End Date & Time" type="datetime-local" />
-          <div class="mb-1">
-            <label class="form-label">Venue</label>
-            <select v-model="form.venue_id" class="form-control">
-              <option value="null" disabled>Select a venue</option>
-              <option v-for="venue in venues" :key="venue.id" :value="venue.id">
-                {{ venue.name }}
-              </option>
-            </select>
-          </div>
 
           <div class="d-flex justify-content-end mt-4">
             <soft-button color="secondary" class="me-2" @click="closeModal">Cancel</soft-button>
@@ -114,20 +99,17 @@ export default {
       showModal: false,
       isEditMode: false,
       events: [],
-      venues: [],
       form: {
         id: null,
         title: "",
         description: "",
         start_date: "",
         end_date: "",
-        venue_id: null,
       },
     };
   },
   mounted() {
     this.fetchEvents();
-    this.fetchVenues();
   },
   methods: {
     async fetchEvents() {
@@ -137,13 +119,6 @@ export default {
       });
       this.events = res.data;
     },
-    async fetchVenues() {
-      const token = localStorage.getItem("token");
-      const res = await api.get("/api/venues", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      this.venues = res.data;
-    },
     openCreateModal() {
       this.isEditMode = false;
       this.form = {
@@ -152,7 +127,6 @@ export default {
         description: "",
         start_date: "",
         end_date: "",
-        venue_id: null,
       };
       this.showModal = true;
     },
@@ -162,9 +136,8 @@ export default {
         id: event.id,
         title: event.title,
         description: event.description,
-        start_date: event.start_date.slice(0, 16),
-        end_date: event.end_date.slice(0, 16),
-        venue_id: event.venue_id,
+        start_date: event.start_date.slice(0, 16), // Format for datetime-local
+        end_date: event.end_date.slice(0, 16), // Format for datetime-local
       };
       this.showModal = true;
     },
@@ -176,7 +149,6 @@ export default {
         description: "",
         start_date: "",
         end_date: "",
-        venue_id: null,
       };
     },
     async createEvent() {

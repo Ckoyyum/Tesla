@@ -8,6 +8,12 @@ use App\Models\Booking;
 
 class VenueController
 {
+    private function json(Response $response, $data, int $status = 200): Response
+    {
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
+    
     // Get all bookings for venues owned by the current user
     public function getOwnerBookings(Request $request, Response $response)
     {
@@ -175,5 +181,17 @@ class VenueController
             $response->getBody()->write(json_encode(['message' => 'Failed to fetch venues']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
+    }
+
+    public function getVenues(Request $request, Response $response)
+    {
+        // $user = $request->getAttribute('user');
+
+        // $venues = Venue::select('id', 'name')->get();
+
+        $venues = Venue::all(); // This returns all fields for each venue
+
+
+        return $this->json($response, $venues, 200);
     }
 }
