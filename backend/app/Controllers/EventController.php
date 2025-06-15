@@ -17,7 +17,7 @@ class EventController
         if ($user->role !== 'organizer') {
             return $this->json($response, ['message' => 'Unauthorized'], 403);
         }
-
+        
         $events = Event::with('venue')
             ->where('organizer_id', $user->id)
             ->orderBy('start_date', 'desc')
@@ -114,5 +114,49 @@ class EventController
     {
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
+
+    // new getevents
+    public function getEvents(Request $request, Response $response, array $args): Response
+    {
+        // $params = $request->getQueryParams();
+        // $email = $params['email'] ?? '';
+
+        // // Sample SQL to fetch events for the organizer
+        // $sql = "SELECT title, start_date, end_date, color FROM events WHERE organizer_email = :email";
+
+        // try {
+        //     $stmt = $this->db->prepare($sql);
+        //     $stmt->bindParam(':email', $email);
+        //     $stmt->execute();
+
+        //     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        //     // Optional: format the dates or apply transformations here
+
+        //     $response->getBody()->write(json_encode($events));
+        //     return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        // } catch (\PDOException $e) {
+        //     $error = ['error' => $e->getMessage()];
+        //     $response->getBody()->write(json_encode($error));
+        //     return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        // }
+
+        $user = $request->getAttribute('user');
+        $email = $user->email;
+
+        $sql = "SELECT title, start_date, end_date FROM events WHERE organizer_email = :email";
+
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+            $events = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $response->getBody()->write(json_encode($events));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\PDOException $e) {
+            return $response->withJson(['error' => $e->getMessage()], 500);
+        }
     }
 }

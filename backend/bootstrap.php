@@ -19,6 +19,7 @@ $capsule = new Capsule;
 $capsule->addConnection([
     'driver'    => 'mysql',
     'host'      => $_ENV['DB_HOST'],
+    'port'      => $_ENV['DB_PORT'],
     'database'  => $_ENV['DB_DATABASE'],
     'username'  => $_ENV['DB_USERNAME'],
     'password'  => $_ENV['DB_PASSWORD'],
@@ -26,6 +27,11 @@ $capsule->addConnection([
     'collation' => 'utf8mb4_unicode_ci',
     'prefix'    => '',
 ]);
+
+// error_log("DB HOST: " . ($_ENV['DB_HOST'] ?? 'NOT SET'));
+// error_log("DB DATABASE: " . ($_ENV['DB_DATABASE'] ?? 'NOT SET'));
+// error_log("DB USERNAME: " . ($_ENV['DB_USERNAME'] ?? 'NOT SET'));
+// error_log("DB PASSWORD: " . ($_ENV['DB_PASSWORD'] ?? 'NOT SET'));
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
@@ -111,6 +117,18 @@ $errorMiddleware->setDefaultErrorHandler(function (
     $response->getBody()->write(json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
     return $response->withHeader('Content-Type', 'application/json');
+});
+
+$app->get('/db-check', function (Request $request, Response $response) {
+    try {
+        $pdo = \Illuminate\Database\Capsule\Manager::connection()->getPdo();
+        $message = "✅ Connected to database: " . $pdo->query('select database()')->fetchColumn();
+    } catch (\Exception $e) {
+        $message = "❌ DB Connection error: " . $e->getMessage();
+    }
+
+    $response->getBody()->write($message);
+    return $response;
 });
 
 return $app;

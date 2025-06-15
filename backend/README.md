@@ -37,6 +37,7 @@ composer install
 ```
 
 when installation is successful, run 
+make sure it runs differently with the frontend port
 ```
-php -S localhost:8080 -t public
+php -S localhost:8000 -t public
 ```

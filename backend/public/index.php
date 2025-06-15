@@ -23,6 +23,12 @@ $app->options('/{routes:.+}', function (Request $request, Response $response): R
 // --- Public Routes (No authentication needed) ---
 $app->post('/register', AuthController::class . ':register');
 $app->post('/login', AuthController::class . ':login');
+// $app->post('/sign-in', AuthController::class . ':login');
+
+// $app->get('/sign-in', function ($request, $response) {
+//     $response->getBody()->write("This is the sign-in page.");
+//     return $response;
+// });
 
 // --- Authenticated Routes Group (/api) ---
 $app->group('/api', function ($group) {
@@ -30,6 +36,7 @@ $app->group('/api', function ($group) {
     // --- Event Routes ---
     $group->get('/events', EventController::class . ':index');
     $group->post('/events', EventController::class . ':createEvent');
+    $group->get('/getevents', [EventController::class, 'getEvents']);
     $group->get('/events/{id}', EventController::class . ':show');
     $group->put('/events/{id}', EventController::class . ':update');
     $group->delete('/events/{id}', EventController::class . ':destroy');
@@ -77,6 +84,8 @@ $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write("Welcome to the Event Management API!");
     return $response;
 });
+
+
 
 // Run the Slim application
 $app->run();

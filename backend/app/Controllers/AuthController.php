@@ -7,6 +7,7 @@ use App\Models\User;
 use Firebase\JWT\JWT;
 use Dotenv\Dotenv; // Add this if you haven't loaded Dotenv globally
 
+
 class AuthController
 {
     private $jwtSecret;
@@ -64,7 +65,7 @@ class AuthController
         // 2. Validate email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return $this->jsonResponse($response, ['message' => 'Invalid email format'], 400);
-        }
+        }     
 
         // 3. Validate role against allowed values
         $allowedRoles = ['vendor', 'organizer', 'venue_owner'];
@@ -76,6 +77,9 @@ class AuthController
         if (strlen($password) < 6) { // Example: minimum 6 characters
             return $this->jsonResponse($response, ['message' => 'Password must be at least 6 characters long.'], 400);
         }
+        
+        $users = User::all(); // Get all users
+        error_log("All users: " . json_encode($users));
 
 
         // --- Check for existing user ---
@@ -87,6 +91,9 @@ class AuthController
             return $this->jsonResponse($response, ['message' => 'Email address already registered.'], 409); // 409 Conflict
         }
 
+            error_log("hit there");
+        
+
         // --- Create new user ---
         try {
             $user = new User();
@@ -95,6 +102,8 @@ class AuthController
             $user->password = password_hash($password, PASSWORD_DEFAULT); // Hash the password
             $user->role = $role;
             $user->save(); // Save the user to the database
+        
+            error_log("hit here");
 
             // Generate JWT after successful registration
             $payload = [
@@ -130,11 +139,20 @@ class AuthController
     // Login Method (no significant changes needed here, as it follows similar logic)
     public function login(Request $request, Response $response): Response
     {
-        $data = $request->getParsedBody();
+        error_log("Login endpoint hit");
+
+        $body = $request->getBody()->getContents();
+        error_log($body);
+        $data = json_decode($body, true); // true = associative array
 
         if (!isset($data['email'], $data['password']) || trim($data['email']) === '' || trim($data['password']) === '') {
             return $this->jsonResponse($response, ['message' => 'Email and password are required.'], 400);
         }
+        // $data = $request->getParsedBody();
+
+        // if (!isset($data['email'], $data['password']) || trim($data['email']) === '' || trim($data['password']) === '') {
+        //     return $this->jsonResponse($response, ['message' => 'Email and password are required.'], 400);
+        // }
 
         $email = trim($data['email']);
         $password = $data['password'];

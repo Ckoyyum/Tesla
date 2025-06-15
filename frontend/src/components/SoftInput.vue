@@ -10,7 +10,8 @@
         class="form-control"
         :class="getClasses(size, success, error)"
         :name="name"
-        :value="value"
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
         :placeholder="placeholder"
         :isRequired="isRequired"
       />
@@ -25,6 +26,10 @@
 export default {
   name: "SoftInput",
   props: {
+     modelValue: {
+      type: String,
+      default: "",
+    },
     size: {
       type: String,
       default: "default",

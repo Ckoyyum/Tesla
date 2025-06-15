@@ -24,9 +24,9 @@
                   <p class="mb-0">Enter your email and password to sign in</p>
                 </div>
                 <div class="card-body">
-                  <form role="form" class="text-start">
+                  <form role="form" class="text-start" @submit.prevent="handleLogin">
                     <label>Email</label>
-                    <soft-input
+                    <!-- <soft-input
                       id="email"
                       type="email"
                       placeholder="Email"
@@ -38,20 +38,41 @@
                       type="password"
                       placeholder="Password"
                       name="password"
+                    /> -->
+
+                    <soft-input
+                      v-model="email"
+                      id="email"
+                      type="email"
+                      placeholder="Email"
+                      name="email"
                     />
+                    <soft-input
+                      v-model="password"
+                      id="password"
+                      type="password"
+                      placeholder="Password"
+                      name="password"
+                    />
+
                     <soft-switch id="rememberMe" name="rememberMe" checked>
                       Remember me
                     </soft-switch>
                     <div class="text-center">
                       <soft-button
+                        type="submit"
                         class="my-4 mb-2"
                         variant="gradient"
                         color="success"
                         full-width
                         >Sign in
                       </soft-button>
+
+                     
+
                     </div>
                   </form>
+
                 </div>
                 <div class="px-1 pt-0 text-center card-footer px-lg-2">
                   <p class="mx-auto mb-4 text-sm">
@@ -89,6 +110,7 @@
 </template>
 
 <script>
+import api from "@/utils/api";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import AppFooter from "@/examples/PageLayout/Footer.vue";
 import SoftInput from "@/components/SoftInput.vue";
@@ -106,6 +128,13 @@ export default {
     SoftSwitch,
     SoftButton,
   },
+  data() {
+    return {
+      email: "",
+      password: "",
+      error: "",
+    };
+  },
   created() {
     this.toggleEveryDisplay();
     this.toggleHideConfig();
@@ -118,6 +147,40 @@ export default {
   },
   methods: {
     ...mapMutations(["toggleEveryDisplay", "toggleHideConfig"]),
+
+    async handleLogin() {
+      console.log("Logging in...");
+
+      console.log("Email:", this.email);
+      console.log("Password:", this.password);
+      // if (!this.email || !this.password) {
+      //   this.error = "Please fill in both email and password.";
+      //   return;
+      // }
+      // this.error = "";
+      try {
+        const res = await api.post("/login", {
+          email: this.email,
+          password: this.password,
+        });
+
+        const { token, user } = res.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Redirect based on role
+        const redirectMap = {
+          organizer: "/organizer-dashboard",
+          vendor: "/vendor-dashboard",
+          venue_owner: "/venue-owner-dashboard",
+        };
+        this.$router.push(redirectMap[user.role] || "/");
+      } catch (err) {
+        this.error =
+          err.response?.data?.message || "Something went wrong during login.";
+      }
+    },
   },
+  
 };
 </script>

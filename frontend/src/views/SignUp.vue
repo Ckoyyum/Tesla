@@ -136,7 +136,7 @@
             </div>
           </div>
           <div class="card-body">
-            <form role="form">
+            <!-- <form role="form">
               <div class="mb-3">
                 <soft-input
                   id="name"
@@ -191,6 +191,77 @@
                   Sign in
                 </router-link>
               </p>
+            </form> -->
+
+            <form role="form" @submit.prevent="register">
+              <div class="mb-3">
+                <soft-input
+                  id="username"
+                  v-model="username"
+                  type="text"
+                  placeholder="Username"
+                  aria-label="Username"
+                />
+              </div>
+              <div class="mb-3">
+                <soft-input
+                  id="email"
+                  v-model="email"
+                  type="email"
+                  placeholder="Email"
+                  aria-label="Email"
+                />
+              </div>
+              <div class="mb-3">
+                <soft-input
+                  id="password"
+                  v-model="password"
+                  type="password"
+                  placeholder="Password"
+                  aria-label="Password"
+                />
+              </div>
+              <div class="mb-3">
+                <select v-model="role" class="form-control">
+                  <option value="">Select Role</option>
+                  <option value="organizer">Organizer</option>
+                  <option value="vendor">Vendor</option>
+                  <option value="venue_owner">Venue Owner</option>
+                </select>
+              </div>
+              <soft-checkbox
+                id="flexCheckDefault"
+                name="flexCheckDefault"
+                class="font-weight-light"
+                checked
+              >
+                I agree to the
+                <a href="javascript:;" class="text-dark font-weight-bolder">
+                  Terms and Conditions
+                </a>
+              </soft-checkbox>
+
+              <div class="text-center">
+                <soft-button
+                  color="dark"
+                  full-width
+                  variant="gradient"
+                  class="my-4 mb-2"
+                  type="submit"
+                >
+                  Sign up
+                </soft-button>
+              </div>
+
+              <p class="text-sm mt-3 mb-0">
+                Already have an account?
+                <router-link
+                  :to="{ name: 'Sign In' }"
+                  class="text-dark font-weight-bolder"
+                >
+                  Sign in
+                </router-link>
+              </p>
             </form>
           </div>
         </div>
@@ -201,6 +272,7 @@
 </template>
 
 <script>
+import api from "@/utils/api";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import AppFooter from "@/examples/PageLayout/Footer.vue";
 import SoftInput from "@/components/SoftInput.vue";
@@ -228,6 +300,31 @@ export default {
   },
   methods: {
     ...mapMutations(["toggleEveryDisplay", "toggleHideConfig"]),
+
+    async register() {
+      console.log("Registering...");
+      console.log("Username:", this.username);
+      console.log("Email:", this.email);
+      console.log("Password:", this.password);
+      console.log("Role:", this.role);
+
+      try {
+        const res = await api.post("/register", {
+          username: this.username,
+          email: this.email,
+          password: this.password,
+          role: this.role,
+        });
+
+        const { token, user } = res.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        this.$router.push("/");
+      } catch (err) {
+        this.error =
+          err.response?.data?.message || "Registration failed. Please try again.";
+      }
+    },
   },
 };
 </script>

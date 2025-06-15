@@ -7,6 +7,8 @@ import Profile from "@/views/Profile.vue";
 import Rtl from "@/views/Rtl.vue";
 import SignIn from "@/views/SignIn.vue";
 import SignUp from "@/views/SignUp.vue";
+import OrganizerDashboard from "@/views/OrganizerDashboard.vue";
+import OrganizerEvents from "@/views/OrganizerEvents.vue";
 
 const routes = [
   {
@@ -45,7 +47,7 @@ const routes = [
     component: Rtl,
   },
   {
-    path: "/sign-in",
+    path: "/login",
     name: "Sign In",
     component: SignIn,
   },
@@ -53,6 +55,16 @@ const routes = [
     path: "/sign-up",
     name: "Sign Up",
     component: SignUp,
+  },
+  {
+    path: "/organizer-dashboard",
+    name: "Organizer Dashboard",
+    component: OrganizerDashboard,
+  },
+  {
+    path: "/organizer-events",
+    name: "Organizer Events",
+    component: OrganizerEvents,
   },
 ];
 

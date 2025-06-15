@@ -1,36 +1,63 @@
 <template>
-  <div class="w-auto h-auto collapse navbar-collapse max-height-vh-100 h-100" id="sidenav-collapse-main">
+  <div
+    class="w-auto h-auto collapse navbar-collapse max-height-vh-100 h-100"
+    id="sidenav-collapse-main"
+  >
     <ul class="navbar-nav">
-      <li
-        v-for="item in menuItemsByRole[$store.state.userRole] || []"
-        :key="item.name"
-        class="nav-item"
-      >
-        <sidenav-collapse :navText="item.text" :to="{ name: item.name }">
+      <li class="nav-item" >
+        <sidenav-collapse navText="Dashboard" :to="{ name: 'Dashboard' }">
           <template #icon>
-            <component :is="resolveIcon(item.icon)" />
+            <shop />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse navText="Dashboard" :to="{ name: 'Organizer Dashboard' }">
+          <template #icon>
+            <shop />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item" >
+        <sidenav-collapse navText="Tables" :to="{ name: 'Tables' }">
+          <template #icon>
+            <office />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse navText="Billing" :to="{ name: 'Billing' }">
+          <template #icon>
+            <credit-card />
           </template>
         </sidenav-collapse>
       </li>
 
-      <!-- Always visible -->
-      <!-- <li class="nav-item">
+      <li class="nav-item">
+        <sidenav-collapse
+          navText="Virtual Reality"
+          :to="{ name: 'Virtual Reality' }"
+        >
+          <template #icon>
+            <box3d />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
         <sidenav-collapse navText="RTL" :to="{ name: 'Rtl' }">
           <template #icon>
             <settings />
           </template>
         </sidenav-collapse>
       </li>
-
-      <li class="mt-3 nav-item">
+      <!-- <li class="mt-3 nav-item">
         <h6
           class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6"
-          :class="$store.state.isRTL ? 'me-4' : 'ms-2'"
+          :class="this.$store.state.isRTL ? 'me-4' : 'ms-2'"
         >
-          Pages
+          PAGES
         </h6>
-      </li>
-
+      </li> -->
       <li class="nav-item">
         <sidenav-collapse navText="Profile" :to="{ name: 'Profile' }">
           <template #icon>
@@ -51,11 +78,10 @@
             <spaceship />
           </template>
         </sidenav-collapse>
-      </li> -->
+      </li>
     </ul>
   </div>
-
-  <!-- <div class="pt-3 mx-3 mt-3 sidenav-footer">
+  <div class="pt-3 mx-3 mt-3 sidenav-footer">
     <sidenav-card
       :class="cardBg"
       textPrimary="Need Help?"
@@ -68,12 +94,10 @@
       class="btn bg-gradient-success mt-4 w-100"
       href="https://www.creative-tim.com/product/vue-soft-ui-dashboard-pro?ref=vsud"
       type="button"
+      >Upgrade to pro</a
     >
-      Upgrade to pro
-    </a>
-  </div> -->
+  </div>
 </template>
-
 <script>
 import SidenavCollapse from "./SidenavCollapse.vue";
 import SidenavCard from "./SidenavCard.vue";
@@ -91,6 +115,13 @@ export default {
   props: {
     cardBg: String,
   },
+  data() {
+    return {
+      title: "Soft UI Dashboard PRO",
+      controls: "dashboardsExamples",
+      isActive: "active",
+    };
+  },
   components: {
     SidenavCollapse,
     SidenavCard,
@@ -103,29 +134,10 @@ export default {
     Spaceship,
     Settings,
   },
-  data() {
-    return {
-      menuItemsByRole: {
-        general: [
-          { text: "Dashboard", name: "Dashboard", icon: "Shop" },
-          { text: "Tables", name: "Tables", icon: "Office" },
-          { text: "Billing", name: "Billing", icon: "CreditCard" },
-          { text: "Virtual Reality", name: "Virtual Reality", icon: "Box3d" },
-          { text: "RTL", name: "Rtl", icon: "settings" },
-          { text: "Profile", name: "Profile", icon: "customer-support" },
-          { text: "Sign In", name: "Sign In", icon: "document" },
-          { text: "Sign Up", name: "Sign Up", icon: "spaceship" },
-        ],
-        organizer: [
-          { text: "Dashboard", name: "Organizer Dashboard", icon: "Shop" },
-          { text: "Events", name: "Organizer Events", icon: "Shop" },
-        ],
-      },
-    };
-  },
   methods: {
-    resolveIcon(icon) {
-      return this.$options.components[icon];
+    getRoute() {
+      const routeArr = this.$route.path.split("/");
+      return routeArr[1];
     },
   },
 };

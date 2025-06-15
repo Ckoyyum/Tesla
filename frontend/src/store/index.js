@@ -58,6 +58,10 @@ export default createStore({
     toggleHideConfig(state) {
       state.hideConfigButton = !state.hideConfigButton;
     },
+    setUserRole(state, role) {
+      state.userRole = role;
+    }
+
   },
   actions: {
     toggleSidebarColor({ commit }, payload) {
