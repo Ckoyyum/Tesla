@@ -92,4 +92,15 @@ const router = createRouter({
   linkActiveClass: "active",
 });
 
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token");
+
+  if (!token && to.path !== "/login") {
+    next("/login"); // Redirect if not logged in
+  } else {
+    next(); // Proceed normally
+  }
+});
+
+
 export default router;

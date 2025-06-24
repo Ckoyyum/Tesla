@@ -1,5 +1,5 @@
 <template>
-  <div class="container top-0 position-sticky z-index-sticky">
+  <!-- <div class="container top-0 position-sticky z-index-sticky">
     <div class="row">
       <div class="col-12">
         <navbar
@@ -9,7 +9,7 @@
         />
       </div>
     </div>
-  </div>
+  </div> -->
   <main class="mt-0 main-content main-content-bg">
     <section>
       <div class="page-header min-vh-75">
@@ -26,20 +26,6 @@
                 <div class="card-body">
                   <form role="form" class="text-start" @submit.prevent="handleLogin">
                     <label>Email</label>
-                    <!-- <soft-input
-                      id="email"
-                      type="email"
-                      placeholder="Email"
-                      name="email"
-                    />
-                    <label>Password</label>
-                    <soft-input
-                      id="password"
-                      type="password"
-                      placeholder="Password"
-                      name="password"
-                    /> -->
-
                     <soft-input
                       v-model="email"
                       id="email"
@@ -47,6 +33,8 @@
                       placeholder="Email"
                       name="email"
                     />
+                    <label>Password</label>
+
                     <soft-input
                       v-model="password"
                       id="password"
@@ -55,9 +43,9 @@
                       name="password"
                     />
 
-                    <soft-switch id="rememberMe" name="rememberMe" checked>
+                    <!-- <soft-switch id="rememberMe" name="rememberMe" checked>
                       Remember me
-                    </soft-switch>
+                    </soft-switch> -->
                     <div class="text-center">
                       <soft-button
                         type="submit"
@@ -106,15 +94,15 @@
       </div>
     </section>
   </main>
-  <app-footer />
+  <!-- <app-footer /> -->
 </template>
 
 <script>
 import api from "@/utils/api";
-import Navbar from "@/examples/PageLayout/Navbar.vue";
-import AppFooter from "@/examples/PageLayout/Footer.vue";
+// import Navbar from "@/examples/PageLayout/Navbar.vue";
+// import AppFooter from "@/examples/PageLayout/Footer.vue";
 import SoftInput from "@/components/SoftInput.vue";
-import SoftSwitch from "@/components/SoftSwitch.vue";
+// import SoftSwitch from "@/components/SoftSwitch.vue";
 import SoftButton from "@/components/SoftButton.vue";
 const body = document.getElementsByTagName("body")[0];
 import { mapMutations } from "vuex";
@@ -122,10 +110,10 @@ import { mapMutations } from "vuex";
 export default {
   name: "SignIn",
   components: {
-    Navbar,
-    AppFooter,
+    // Navbar,
+    // AppFooter,
     SoftInput,
-    SoftSwitch,
+    // SoftSwitch,
     SoftButton,
   },
   data() {

@@ -7,6 +7,8 @@ use App\Controllers\AuthController;
 use App\Controllers\EventController;
 use App\Controllers\VendorController;
 use App\Controllers\VenueController;
+use App\Controllers\AttendeesController;
+use App\Controllers\AttendanceController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CorsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -51,6 +53,14 @@ $app->group('/api', function ($group) {
         $organizerGroup->post('/events', EventController::class . ':createEvent2');
         $organizerGroup->put('/events/{id}', EventController::class . ':updateEvent2');
     });
+
+    // --- Attendee Routes ---
+    $group->get('/attendees/event/{event_id}', AttendeesController::class . ':getAttendees');
+    $group->post('/attendees', AttendeesController::class . ':createAttendee');
+
+    // --- Attendance Routes ---
+    $group->post('/attendance/scan', AttendanceController::class . ':scanAttendance');
+    $group->get('/attendance/event/{event_id}', AttendanceController::class . ':getAttendance');
 
     // --- Vendor Routes ---
     // $group->get('/vendors', VendorController::class . ':index');
