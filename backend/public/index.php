@@ -10,6 +10,7 @@ use App\Controllers\VenueController;
 use App\Controllers\AttendeesController;
 use App\Controllers\AttendanceController;
 use App\Controllers\SurveyController;
+use App\Controllers\BookingController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CorsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -36,7 +37,20 @@ $app->post('/login', AuthController::class . ':login');
 $app->group('/api/surveys', function ($group) {
     // Submit a survey for an event
     $group->post('/{id:[0-9]+}', [SurveyController::class, 'submitSurvey']);
+
+    // Get average ratings for organizer's events
+    // $group->get('/ratings', [SurveyController::class, 'getAverageRatings']);
+        // ->add(function (Request $request, Response $response, callable $next) {
+        //     $user = $request->getAttribute('user');
+        //     if (!$user) {
+        //         $response->getBody()->write(json_encode(['message' => 'Unauthenticated']));
+        //         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        //     }
+        //     return $next($request, $response);
+        // });
 });
+
+
 
 $app->group('/api/events', function ($group) {
     // Get event details for survey
@@ -45,6 +59,10 @@ $app->group('/api/events', function ($group) {
 
 // --- Authenticated Routes Group (/api) ---
 $app->group('/api', function ($group) {
+
+
+    // organizer rating 
+    $group->get('/surveys/ratings', [SurveyController::class, 'getAverageRatings']);
 
     // users
     $group->get('/getusers', AuthController::class . ':getUsers');
@@ -58,11 +76,20 @@ $app->group('/api', function ($group) {
     $group->put('/events/{id}', EventController::class . ':update');
     $group->delete('/events/{id}', EventController::class . ':destroy');
 
+    $group->group('/bookings', function ($group) {
+        // List bookings for venue owner or vendor
+        $group->get('', [BookingController::class, 'getMyBookings']);
+
+        // Update booking status
+        $group->post('/{id:[0-9]+}', [BookingController::class, 'updateBookingStatus']);
+
+    });
+
     // Organizer-scoped events
     $group->group('/organizer', function ($organizerGroup) {
         $organizerGroup->get('/events', EventController::class . ':getMyEvents');
-        $organizerGroup->post('/events', EventController::class . ':createEvent2');
-        $organizerGroup->put('/events/{id}', EventController::class . ':updateEvent2');
+        $organizerGroup->post('/events', EventController::class . ':createEvent');
+        $organizerGroup->put('/events/{id}', EventController::class . ':updateEvent');
 
         $organizerGroup->get('/venues', VenueController::class . ':getVenues');
 

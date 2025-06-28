@@ -136,13 +136,14 @@ export default {
         venue_owner: [
           { text: "Dashboard", name: "Venue Owner Dashboard", icon: "Shop" },
           { text: "Events", name: "Organizer Events", icon: "Shop" },
+          { text: "Bookings", name: "Venue Owner Bookings", icon: "Shop" },
           { text: "Venues", name: "Venue Owner Venue", icon: "Shop" },
           { text: "Sign Out", name: "Sign Out", icon: "Shop" },
         ],
         vendor: [
           { text: "Dashboard", name: "Vendor Dashboard", icon: "Shop" },
           { text: "Events", name: "Organizer Events", icon: "Shop" },
-          // { text: "Venues", name: "Venue Owner Venue", icon: "Shop" },
+          { text: "Bookings", name: "Vendor Bookings", icon: "Shop" },
           { text: "Services", name: "Vendor Services", icon: "Shop" },
           { text: "Sign Out", name: "Sign Out", icon: "Shop" },
         ],

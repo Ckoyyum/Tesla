@@ -13,8 +13,10 @@ import OrganizerVenues from "@/views/OrganizerVenues.vue";
 import OrganizerVendors from "@/views/OrganizerVendors.vue";
 import VenueOwnerDashboard from "@/views/VenueOwnerDashboard.vue";
 import VenueOwnerVenue from "@/views/VenueOwnerVenue.vue";
+import VenueOwnerBooking from "@/views/VenueOwnerBooking.vue";
 import VendorDashboard from "@/views/VendorDashboard.vue";
 import VendorServices from "@/views/VendorServices.vue";
+import VendorBooking from "@/views/VendorBooking.vue";
 import SurveyResponse from "@/views/SurveyResponse.vue";
 
 import SignOut from "@/views/SignOut.vue";
@@ -101,6 +103,11 @@ const routes = [
     component: VenueOwnerVenue,
   },
   {
+    path: "/venue-owner-bookings",
+    name: "Venue Owner Bookings",
+    component: VenueOwnerBooking,
+  },
+  {
     path: "/vendor-dashboard",
     name: "Vendor Dashboard",
     component: VendorDashboard,
@@ -109,6 +116,11 @@ const routes = [
     path: "/vendor-services",
     name: "Vendor Services",
     component: VendorServices,
+  },
+  {
+    path: "/vendor-bookings",
+    name: "Vendor Bookings",
+    component: VendorBooking,
   },
   {
   path: '/survey/:id',

@@ -137,7 +137,7 @@ export default {
     async fetchUsers() {
       try {
         const token = localStorage.getItem("token");
-        const res = await api.get("/api/organizer/getusers", {
+        const res = await api.get("/api/getusers", {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.users = res.data;

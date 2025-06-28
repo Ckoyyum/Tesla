@@ -30,4 +30,24 @@ class Event extends Model
     {
         return $this->belongsToMany(VendorService::class, 'event_vendor_services');
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(EventBooking::class, 'event_id');
+    }
+
+    public function updateStatus()
+    {
+        $bookings = $this->bookings;
+        if ($bookings->isEmpty()) {
+            $this->status = 'pending';
+        } elseif ($bookings->pluck('status')->contains('rejected')) {
+            $this->status = 'rejected';
+        } elseif ($bookings->pluck('status')->every(fn($status) => $status === 'approved')) {
+            $this->status = 'ready';
+        } else {
+            $this->status = 'pending';
+        }
+        $this->save();
+    }
 }

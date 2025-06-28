@@ -32,6 +32,9 @@
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
                   Venue
                 </th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">
+                  Status
+                </th>
                 <th class="text-secondary opacity-7 text-center">Actions</th>
               </tr>
             </thead>
@@ -55,6 +58,9 @@
                   <span class="text-xs font-weight-bold">{{ event.venue ? event.venue.name : 'N/A' }}</span>
                 </td>
                 <td class="align-middle text-center">
+                  <span class="text-xs font-weight-bold">{{ event.status }}</span>
+                </td>
+                <td class="align-middle text-center">
                   <a
                     href="javascript:;"
                     class="text-secondary font-weight-bold text-xs"
@@ -72,137 +78,141 @@
 
     <!-- Modal -->
     <div v-if="localshowModal" class="modal-backdrop">
-    <div class="modal-container card p-4">
-      <!-- Tabs Navigation -->
-      <ul class="nav nav-tabs mb-3">
-        <li class="nav-item">
-          <button class="nav-link" :class="{ active: activeTab === 'details' }" @click="activeTab = 'details'">
-            Event Details
-          </button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link" :class="{ active: activeTab === 'attendees' }" @click="activeTab = 'attendees'">
-            Attendees
-          </button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link" :class="{ active: activeTab === 'scanner' }" @click="activeTab = 'scanner'">
-            scanner
-          </button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link" :class="{ active: activeTab === 'attendance' }" @click="activeTab = 'attendance'">
-            attendance
-          </button>
-        </li>
-      </ul>
+      <div class="modal-container card p-4">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs mb-3">
+          <li class="nav-item">
+            <button class="nav-link" :class="{ active: activeTab === 'details' }" @click="activeTab = 'details'">
+              Event Details
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" :class="{ active: activeTab === 'attendees' }" @click="activeTab = 'attendees'">
+              Attendees
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" :class="{ active: activeTab === 'scanner' }" @click="activeTab = 'scanner'">
+              Scanner
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" :class="{ active: activeTab === 'attendance' }" @click="activeTab = 'attendance'">
+              Attendance
+            </button>
+          </li>
+        </ul>
 
-      <!-- Event Details Tab -->
-      <div v-if="activeTab === 'details'">
-        <h5 class="mb-3">{{ isEditMode ? 'Edit Event' : 'Create New Event' }}</h5>
-        <form @submit.prevent="isEditMode ? updateEvent() : createEvent()">
-          <soft-input v-model="form.title" label="Title" />
-          <soft-input v-model="form.description" label="Description" />
-          <soft-input v-model="form.start_date" label="Start Date & Time" type="datetime-local" />
-          <soft-input v-model="form.end_date" label="End Date & Time" type="datetime-local" />
-          <div class="mb-1">
+        <!-- Event Details Tab -->
+        <div v-if="activeTab === 'details'">
+          <h5 class="mb-3">{{ localEditMode ? 'Edit Event' : 'Create New Event' }}</h5>
+          <form @submit.prevent="localEditMode ? updateEvent() : createEvent()">
+            <label class="form-label">Title</label>
+            <soft-input v-model="form.title" label="Title" required />
+            <label class="form-label">Description</label>
+            <soft-input v-model="form.description" label="Description" required />
+            <label class="form-label">Start Date & Time</label>
+            <soft-input v-model="form.start_date" label="Start Date & Time" type="datetime-local" required />
+            <label class="form-label">End Date & Time</label>
+            <soft-input v-model="form.end_date" label="End Date & Time" type="datetime-local" required />
             <label class="form-label">Venue</label>
-            <select v-model="form.venue_id" class="form-control">
-              <option value="null" disabled>Select a venue</option>
+            <select v-model="form.venue_id" class="form-control" required>
+              <option value="">Select a Venue</option>
               <option v-for="venue in venues" :key="venue.id" :value="venue.id">
-                {{ venue.name }}
+                {{ venue.name }} ({{ venue.address }})
               </option>
             </select>
+            <label class="form-label mt-3">Vendor Services</label>
+            <div v-for="service in vendorServices" :key="service.id" class="form-check">
+              <input
+                type="checkbox"
+                :value="service.id"
+                v-model="form.vendor_service_ids"
+                class="form-check-input"
+              >
+              <label class="form-check-label">{{ service.name }} ({{ service.price }})</label>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+              <soft-button color="secondary" class="me-2" @click="closeModal">Cancel</soft-button>
+              <soft-button type="submit" color="success" variant="gradient">
+                {{ localEditMode ? 'Update' : 'Save' }}
+              </soft-button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Attendees Tab -->
+        <div v-if="activeTab === 'attendees'">
+          <h5 class="mb-3">Attendees List</h5>
+          <div class="mb-3">
+            <div class="input-group">
+              <input v-model="newAttendeeName" type="text" class="form-control" placeholder="Enter attendee name">
+              <button class="btn btn-success" @click="addAttendee">Add Attendee</button>
+            </div>
+          </div>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>QR Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="attendee in attendees" :key="attendee.id">
+                  <td>{{ attendee.name }}</td>
+                  <td>
+                    <qrcode-vue v-if="attendee?.qr_code" :value="attendee.qr_code" :size="100" level="H" render-as="svg" />
+                    <span v-else>No QR Code</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div class="d-flex justify-content-end mt-4">
-            <soft-button color="secondary" class="me-2" @click="closeModal">Cancel</soft-button>
-            <soft-button type="submit" color="success" variant="gradient">
-              {{ isEditMode ? 'Update' : 'Save' }}
-            </soft-button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Attendees Tab -->
-      <div v-if="activeTab === 'attendees'" >
-      <!-- <div> -->
-        <h5 class="mb-3">Attendees List</h5>
-        <div class="mb-3">
-          <div class="input-group">
-            <input v-model="newAttendeeName" type="text" class="form-control" placeholder="Enter attendee name">
-            <button class="btn btn-success" @click="addAttendee">Add Attendee</button>
+            <soft-button color="secondary" @click="closeModal">Close</soft-button>
           </div>
         </div>
-        <div style="max-height: 400px; overflow-y: auto;">
-          <table class="table" >
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>QR Code</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="attendee in attendees" :key="attendee.id">
-                <td>{{ attendee.name }}</td>
-                <td>
-                  <qrcode-vue v-if="attendee?.qr_code" :value="attendee.qr_code" :size="100" level="H" render-as="svg" />
-                  <span v-else>No QR Code</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+        <!-- Scanner Tab -->
+        <div v-if="activeTab === 'scanner'">
+          <h5 class="mb-3">Scanner</h5>
+          <div class="mb-3">
+            <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded"></StreamBarcodeReader>
+            <div v-if="scanMessage" :class="['mt-3', scanStatus === 'success' ? 'text-success' : 'text-danger']">
+              {{ scanMessage }}
+            </div>
+          </div>
+          <div class="d-flex justify-content-end mt-4">
+            <soft-button color="secondary" @click="closeModal">Close</soft-button>
+          </div>
         </div>
-        <div class="d-flex justify-content-end mt-4">
-          <soft-button color="secondary" @click="closeModal">Close</soft-button>
+
+        <!-- Attendance Tab -->
+        <div v-if="activeTab === 'attendance'">
+          <h5 class="mb-3">Attendance</h5>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Attended</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="attendance in attendances" :key="attendance.id">
+                  <td>{{ attendance.attendee.name }}</td>
+                  <td>{{ attendance.attended_at }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="d-flex justify-content-end mt-4">
+            <soft-button color="secondary" @click="closeModal">Close</soft-button>
+          </div>
         </div>
       </div>
-
-      <!-- Scanner tab -->
-      <div v-if="activeTab === 'scanner'" >
-      <!-- <div> -->
-        <h5 class="mb-3">scanner</h5>
-        <div class="mb-3">
-        </div>
-        <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded"></StreamBarcodeReader>
-        <div v-if="scanMessage" :class="['mt-3', scanStatus === 'success' ? 'text-success' : 'text-danger']">
-          {{ scanMessage }}
-        </div>
-        <div class="d-flex justify-content-end mt-4">
-          <soft-button color="secondary" @click="closeModal">Close</soft-button>
-        </div>
-      </div>
-
-      <!-- Scanner tab -->
-      <div v-if="activeTab === 'attendance'" >
-      <!-- <div> -->
-        <h5 class="mb-3">Attendance</h5>
-        <div class="mb-3">
-        </div>
-        
-        <div style="max-height: 400px; overflow-y: auto;">
-          <table class="table" >
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Attended</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="attendance in attendances" :key="attendance.id">
-                <td>{{ attendance.attendee.name }}</td>
-                <td>{{ attendance.attended_at }}</td>
-
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="d-flex justify-content-end mt-4">
-          <soft-button color="secondary" @click="closeModal">Close</soft-button>
-        </div>
-      </div>
-
     </div>
-  </div>
   </div>
 </template>
 
@@ -210,149 +220,132 @@
 import SoftButton from "@/components/SoftButton.vue";
 import SoftInput from "@/components/SoftInput.vue";
 import { StreamBarcodeReader } from "vue-barcode-reader";
-import api from "@/utils/api";
 import QrcodeVue from 'qrcode.vue';
+import api from "@/utils/api";
 
 export default {
   components: { SoftButton, SoftInput, QrcodeVue, StreamBarcodeReader },
-  props: {
-    showModal: Boolean,
-    isEditMode: Boolean,
-    eventData: Object,
-  },
   data() {
     return {
-      // showModal: false,
-      // isEditMode: false,
       events: [],
       venues: [],
+      vendorServices: [],
       activeTab: 'details',
+      localEditMode: false,
+      localshowModal: false,
       form: {
         id: null,
         title: "",
         description: "",
         start_date: "",
         end_date: "",
-        venue_id: null,
+        venue_id: "",
+        vendor_service_ids: []
       },
       attendees: [],
-      attendances : [],
+      attendances: [],
       newAttendeeName: '',
-      // localEditMode: this.isEditMode,
-      localEditMode: this.isEditMode,
-      localshowModal: this.showModal,
       scanMessage: '',
-      scanStatus: '',
-
+      scanStatus: ''
     };
-  },
-  watch: {
-    showModal(newVal) {
-      console.log('woi');
-      if (newVal) {
-        console.log('woii');
-
-        this.fetchVenues();
-        if (this.eventData) {
-        console.log('woiii');
-
-          this.form = {
-            id: this.eventData.id,
-            title: this.eventData.title,
-            description: this.eventData.description,
-            start_date: this.eventData.start_date.slice(0, 16),
-            end_date: this.eventData.end_date.slice(0, 16),
-            venue_id: this.eventData.venue_id,
-          };
-          this.loadAttendees(this.eventData.id);
-        }
-      } else {
-        this.activeTab = 'details';
-        this.newAttendeeName = '';
-        this.attendees = [];
-        this.scanMessage = '';
-        this.scanStatus = '';
-        this.form = {
-          id: null,
-          title: '',
-          description: '',
-          start_date: '',
-          end_date: '',
-          venue_id: null,
-        };
-      }
-    },
-  },
-  mounted() {
-    this.fetchEvents();
-    this.fetchVenues();
   },
   methods: {
     async fetchEvents() {
-      const token = localStorage.getItem("token");
-      const res = await api.get("/api/organizer/events", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      this.events = res.data;
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.get("/api/organizer/events", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.events = res.data;
+      } catch (err) {
+        console.error("❌ Failed to fetch events:", err);
+      }
     },
     async fetchVenues() {
-      const token = localStorage.getItem("token");
-      const res = await api.get("/api/organizer/venues", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      this.venues = res.data;
+      try {
+
+        const token = localStorage.getItem('token');
+        const res = await api.get('/api/organizer/venues', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        this.venues = res.data;
+      } catch (err) {
+        console.error("❌ Failed to fetch venues:", err);
+      }
+    },
+    async fetchVendorServices() {
+      try {
+        
+        // const res = await api.get("/api/organizer/vendor-services");
+        console.log('fetch');
+        const token = localStorage.getItem('token');
+        const res = await api.get('/api/organizer/vendor-services',  {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log('fetcs');
+
+
+        this.vendorServices = res.data;
+      } catch (err) {
+        console.error("❌ Failed to fetch vendor services:", err);
+      }
     },
     openCreateModal() {
-      // this.isEditMode = false;
       this.localEditMode = false;
-
+      this.localshowModal = true;
+      this.activeTab = 'details';
       this.form = {
         id: null,
         title: "",
         description: "",
         start_date: "",
         end_date: "",
-        venue_id: null,
+        venue_id: "",
+        vendor_service_ids: []
       };
-      // this.showModal = true;
-      this.localshowModal = true;
+      this.attendees = [];
+      this.attendances = [];
+      this.newAttendeeName = '';
+      this.scanMessage = '';
+      this.scanStatus = '';
     },
     openEditModal(event) {
-      // this.isEditMode = true;
       this.localEditMode = true;
+      this.localshowModal = true;
+      this.activeTab = 'details';
       this.form = {
         id: event.id,
         title: event.title,
         description: event.description,
         start_date: event.start_date.slice(0, 16),
         end_date: event.end_date.slice(0, 16),
-        venue_id: event.venue_id,
+        venue_id: event.venue_id || "",
+        vendor_service_ids: event.vendor_services ? event.vendor_services.map(service => service.id) : []
       };
-      // this.showModal = true;
-      this.localshowModal = true;
-      // console.log("heree"+ this.localshowModal);
       this.loadAttendees(event.id);
       this.loadAttendances(event.id);
-
     },
     closeModal() {
-      // this.showModal = false;
       this.localshowModal = false;
-
+      this.localEditMode = false;
+      this.activeTab = 'details';
       this.form = {
         id: null,
         title: "",
         description: "",
         start_date: "",
         end_date: "",
-        venue_id: null,
+        venue_id: "",
+        vendor_service_ids: []
       };
+      this.attendees = [];
+      this.attendances = [];
+      this.newAttendeeName = '';
       this.scanMessage = '';
       this.scanStatus = '';
     },
     async loadAttendees(eventId) {
-        console.log('ini lepas');
-
       if (!eventId) return;
       try {
         const token = localStorage.getItem('token');
@@ -360,13 +353,11 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.attendees = res.data;
-        console.log('ni lepas');
       } catch (err) {
         console.error('❌ Failed to load attendees:', err);
       }
     },
     async addAttendee() {
-      console.log('hi');
       if (!this.newAttendeeName.trim() || !this.form.id) return;
       try {
         const token = localStorage.getItem('token');
@@ -383,8 +374,6 @@ export default {
       }
     },
     async loadAttendances(eventId) {
-        console.log('ini lepas');
-
       if (!eventId) return;
       try {
         const token = localStorage.getItem('token');
@@ -392,39 +381,92 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.attendances = res.data;
-        console.log(res.data);
       } catch (err) {
-        console.error('❌ Failed to load attendees:', err);
+        console.error('❌ Failed to load attendances:', err);
       }
     },
     async createEvent() {
       try {
+        if (!this.form.vendor_service_ids.length) {
+          alert("Please select at least one vendor service.");
+          return;
+        }
         const token = localStorage.getItem("token");
-        await api.post("/api/organizer/events", this.form, {
-          headers: { Authorization: `Bearer ${token}` },
+        const formData = new FormData();
+        formData.append("title", this.form.title);
+        formData.append("description", this.form.description);
+        formData.append("start_date", this.form.start_date);
+        formData.append("end_date", this.form.end_date);
+        formData.append("venue_id", this.form.venue_id);
+        this.form.vendor_service_ids.forEach((id, index) => {
+          formData.append(`vendor_service_ids[${index}]`, id);
+        });
+        await api.post("/api/organizer/events", formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         });
         this.closeModal();
         this.fetchEvents();
       } catch (err) {
         console.error("❌ Event creation failed:", err);
+        alert("Failed to create event. Please check your input.");
       }
     },
     async updateEvent() {
       try {
+        if (!this.form.vendor_service_ids.length) {
+          alert("Please select at least one vendor service.");
+          return;
+        }
         const token = localStorage.getItem("token");
-        await api.put(`/api/organizer/events/${this.form.id}`, this.form, {
-          headers: { Authorization: `Bearer ${token}` },
+        // const formData = new FormData();
+        // formData.append("title", this.form.title);
+        // formData.append("description", this.form.description);
+        // formData.append("start_date", this.form.start_date);
+        // formData.append("end_date", this.form.end_date);
+        // formData.append("venue_id", this.form.venue_id);
+        // this.form.vendor_service_ids.forEach((id, index) => {
+        //   formData.append(`vendor_service_ids[${index}]`, id);
+        // });
+        // await api.put(`/api/organizer/events/${this.form.id}`, formData, {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`
+        //   },
+        // });
+
+        const payload = {
+          title: this.form.title,
+          description: this.form.description,
+          start_date: this.form.start_date,
+          end_date: this.form.end_date,
+          venue_id: this.form.venue_id,
+          vendor_service_ids: this.form.vendor_service_ids,
+        };
+
+        await api.put(`/api/organizer/events/${this.form.id}`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
+
+        // for (let pair of formData.entries()) {
+        //   console.log(`${pair[0]}:`, pair[1]);
+        // }
+
+        // console.log(formData);
         this.closeModal();
         this.fetchEvents();
       } catch (err) {
         console.error("❌ Event update failed:", err);
+        alert("Failed to update event. Please check your input.");
       }
     },
     formatDate(dateStr) {
       return new Date(dateStr).toLocaleString();
     },
-    // onDecode (result) { console.log(result) },
     async onDecode(result) {
       if (!this.form.id) {
         this.scanMessage = 'No event selected';
@@ -433,7 +475,7 @@ export default {
       }
       try {
         const token = localStorage.getItem('token');
-        const res = await api.post('/api/attendance/scan', {
+        const res = await api.post('/api/organizer/attendance/scan', {
           qr_code: result,
           event_id: this.form.id,
         }, {
@@ -441,20 +483,27 @@ export default {
         });
         this.scanMessage = res.data.message;
         this.scanStatus = res.data.status;
-        // Refresh attendees list to reflect attendance changes
         await this.loadAttendees(this.form.id);
+        await this.loadAttendances(this.form.id);
       } catch (err) {
         this.scanMessage = err.response?.data?.message || 'Failed to mark attendance';
         this.scanStatus = 'error';
         console.error('❌ Failed to scan QR code:', err);
       }
-      // Clear message after 3 seconds
       setTimeout(() => {
         this.scanMessage = '';
         this.scanStatus = '';
       }, 3000);
     },
+    onLoaded() {
+      // Handle barcode reader loaded event if needed
+    }
   },
+  mounted() {
+    this.fetchEvents();
+    this.fetchVenues();
+    this.fetchVendorServices();
+  }
 };
 </script>
 
@@ -474,5 +523,8 @@ export default {
 .modal-container {
   max-width: 600px;
   width: 100%;
+}
+.form-check {
+  margin-bottom: 10px;
 }
 </style>

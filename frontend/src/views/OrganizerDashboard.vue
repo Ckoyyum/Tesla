@@ -69,15 +69,25 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <pie-chart
+          v-if="ratings.venue && ratings.services && ratings.management"
           id="chart-pie"
-          title="Pie Chart Example"
-          description="User Distribution by Platform"
+          title="Event Ratings"
+          description="Average Ratings for Your Events"
           :chart="{
-            labels: ['Mobile', 'Desktop', 'Tablet'],
+            // labels: ['Mobile', 'Desktop', 'Tablet'],
+            // datasets: [
+            //   {
+            //     label: 'Users',
+            //     data: [5.0, 5.0, 5.0],
+            //     backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
+            //     borderWidth: 1,
+            //   },
+            // ],
+            labels: ['Venue', 'Services', 'Management'],
             datasets: [
               {
-                label: 'Users',
-                data: [55, 30, 15],
+                label: 'Average Rating',
+                data: [ratings.venue, ratings.services, ratings.management],
                 backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
                 borderWidth: 1,
               },
@@ -92,6 +102,7 @@
 import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import PieChart from "@/examples/Charts/PieChart.vue"; 
 import EventCalendar from "@/examples/EventCalendar.vue";
+import api from "@/utils/api";
 import US from "../assets/img/icons/flags/US.png";
 import DE from "../assets/img/icons/flags/DE.png";
 import GB from "../assets/img/icons/flags/GB.png";
@@ -141,6 +152,11 @@ export default {
           flag: BR,
         },
       },
+      ratings: {
+        venue: 0,
+        services: 0,
+        management: 0
+      }
     };
   },
   components: {
@@ -148,5 +164,25 @@ export default {
     PieChart,
     EventCalendar,
   },
+  methods: {
+    async fetchRatings() {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.get("/api/surveys/ratings", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.ratings = {
+          venue: parseFloat(res.data.venue_rating || 0).toFixed(1),
+          services: parseFloat(res.data.services_rating || 0).toFixed(1),
+          management: parseFloat(res.data.management_rating || 0).toFixed(1)
+        };
+      } catch (err) {
+        console.error("❌ Failed to fetch ratings:", err);
+      }
+    }
+  },
+  mounted() {
+    this.fetchRatings();
+  }
 };
 </script>
