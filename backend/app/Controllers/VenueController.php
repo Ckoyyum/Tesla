@@ -194,4 +194,140 @@ class VenueController
 
         return $this->json($response, $venues, 200);
     }
+
+    /* ---------- LIST for venue owner ---------- */
+    public function getMyVenues(Request $request, Response $response)
+    {
+        $user = $request->getAttribute('user');
+
+        if ($user->role !== 'venue_owner') {
+            return $this->json($response, ['message' => 'Unauthorized'], 403);
+        }
+
+        $venues = Venue::where('user_id', $user->id)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return $this->json($response, $venues);
+    }
+
+    /* ---------- CREATE ---------- */
+    public function createVenue(Request $request, Response $response)
+    {
+        $user = $request->getAttribute('user');
+        
+        if ($user->role !== 'venue_owner') {
+            return $this->json($response, ['message' => 'Unauthorized'], 403);
+        }
+
+        
+
+        $data = $request->getParsedBody();
+        $uploadedFiles = $request->getUploadedFiles();
+
+        foreach (['name', 'address', 'capacity', 'price'] as $field) {
+            if (empty($data[$field])) {
+                return $this->json($response, ["message" => "$field is required"], 422);
+            }
+        }
+
+        $imagePath = null;
+        if (isset($uploadedFiles['image']) && $uploadedFiles['image']->getError() === UPLOAD_ERR_OK) {
+            $image = $uploadedFiles['image'];
+            $filename = uniqid() . '_' . $image->getClientFilename();
+            $image->moveTo('uploads/venues/' . $filename);
+            $imagePath = '/uploads/venues/' . $filename;
+        }
+
+        $venue = Venue::create([
+            'user_id' => $user->id,
+            'name' => $data['name'],
+            'address' => $data['address'],
+            'capacity' => $data['capacity'],
+            'description' => $data['description'] ?? null,
+            'price' => $data['price'],
+            'image' => $imagePath,
+        ]);
+        error_log('wweeeeeewwooooo');
+
+
+        return $this->json($response, $venue, 201);
+    }
+
+    /* ---------- READ ---------- */
+    public function getVenue(Request $request, Response $response, array $args)
+    {
+        $venue = Venue::find($args['id']);
+        if (!$venue) {
+            return $this->json($response, ['message' => 'Not found'], 404);
+        }
+        return $this->json($response, $venue);
+    }
+
+    /* ---------- UPDATE ---------- */
+    public function updateVenue(Request $request, Response $response, array $args)
+    {
+        error_log('hegewwew');
+
+        $user = $request->getAttribute('user');
+        $venue = Venue::find($args['id']);
+
+        if (!$venue) {
+            return $this->json($response, ['message' => 'Not found'], 404);
+        }
+        if ($venue->user_id !== $user->id) {
+            return $this->json($response, ['message' => 'Forbidden'], 403);
+        }
+
+        $data = $request->getParsedBody();
+        $uploadedFiles = $request->getUploadedFiles();
+        error_log('hegewwew');
+
+        $imagePath = $venue->image;
+        if (isset($uploadedFiles['image']) && $uploadedFiles['image']->getError() === UPLOAD_ERR_OK) {
+            // Delete old image if it exists
+            if ($imagePath && file_exists('uploads/venues/' . basename($imagePath))) {
+                unlink('uploads/venues/' . basename($imagePath));
+            }
+            $image = $uploadedFiles['image'];
+            $filename = uniqid() . '_' . $image->getClientFilename();
+            $image->moveTo('uploads/venues/' . $filename);
+            $imagePath = '/uploads/venues/' . $filename;
+        }
+
+        $venue->fill([
+            'name' => $data['name'] ?? $venue->name,
+            'address' => $data['address'] ?? $venue->address,
+            'capacity' => $data['capacity'] ?? $venue->capacity,
+            'description' => $data['description'] ?? $venue->description,
+            'price' => $data['price'] ?? $venue->price,
+            'image' => $imagePath,
+        ]);
+        $venue->save();
+
+        return $this->json($response, $venue);
+    }
+
+    /* ---------- DELETE ---------- */
+    public function deleteVenue(Request $request, Response $response, array $args)
+    {
+        $user = $request->getAttribute('user');
+        $venue = Venue::find($args['id']);
+
+        if (!$venue) {
+            return $this->json($response, ['message' => 'Not found'], 404);
+        }
+        if ($venue->user_id !== $user->id) {
+            return $this->json($response, ['message' => 'Forbidden'], 403);
+        }
+
+        if ($venue->image && file_exists('uploads/venues/' . basename($venue->image))) {
+            unlink('uploads/venues/' . basename($venue->image));
+        }
+
+        $venue->delete();
+        return $this->json($response, ['message' => 'Deleted'], 200);
+    }
+
+    
 }

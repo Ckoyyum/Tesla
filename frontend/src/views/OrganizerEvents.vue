@@ -71,35 +71,6 @@
     </div>
 
     <!-- Modal -->
-    <!-- <div v-if="showModal" class="modal-backdrop">
-      <div class="modal-container card p-4">
-        <h5 class="mb-3">{{ isEditMode ? 'Edit Event' : 'Create New Event' }}</h5>
-
-        <form @submit.prevent="isEditMode ? updateEvent() : createEvent()">
-          <soft-input v-model="form.title" label="Title" />
-          <soft-input v-model="form.description" label="Description" />
-          <soft-input v-model="form.start_date" label="Start Date & Time" type="datetime-local"  />
-          <soft-input v-model="form.end_date" label="End Date & Time" type="datetime-local" />
-          <div class="mb-1">
-            <label class="form-label">Venue</label>
-            <select v-model="form.venue_id" class="form-control">
-              <option value="null" disabled>Select a venue</option>
-              <option v-for="venue in venues" :key="venue.id" :value="venue.id">
-                {{ venue.name }}
-              </option>
-            </select>
-          </div>
-
-          <div class="d-flex justify-content-end mt-4">
-            <soft-button color="secondary" class="me-2" @click="closeModal">Cancel</soft-button>
-            <soft-button type="submit" color="success" variant="gradient">
-              {{ isEditMode ? 'Update' : 'Save' }}
-            </soft-button>
-          </div>
-        </form>
-      </div>
-    </div> -->
-
     <div v-if="localshowModal" class="modal-backdrop">
     <div class="modal-container card p-4">
       <!-- Tabs Navigation -->
@@ -173,10 +144,6 @@
             <tbody>
               <tr v-for="attendee in attendees" :key="attendee.id">
                 <td>{{ attendee.name }}</td>
-                <!-- <td>
-                  <qrcode-vue :value="attendee.qr_code" :size="100" level="H" />
-                </td> -->
-
                 <td>
                   <qrcode-vue v-if="attendee?.qr_code" :value="attendee.qr_code" :size="100" level="H" render-as="svg" />
                   <span v-else>No QR Code</span>
@@ -195,37 +162,11 @@
       <!-- <div> -->
         <h5 class="mb-3">scanner</h5>
         <div class="mb-3">
-
-
-          <!-- <div class="input-group">
-            <input v-model="newAttendeeName" type="text" class="form-control" placeholder="Enter attendee name">
-            <button class="btn btn-success" @click="addAttendee">Add Attendee</button>
-          </div> -->
         </div>
         <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded"></StreamBarcodeReader>
         <div v-if="scanMessage" :class="['mt-3', scanStatus === 'success' ? 'text-success' : 'text-danger']">
           {{ scanMessage }}
         </div>
-        <!-- <div style="max-height: 400px; overflow-y: auto;"> -->
-          <!-- <table class="table" >
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>QR Code</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="attendee in attendees" :key="attendee.id">
-                <td>{{ attendee.name }}</td>
-
-                <td>
-                  <qrcode-vue v-if="attendee?.qr_code" :value="attendee.qr_code" :size="100" level="H" render-as="svg" />
-                  <span v-else>No QR Code</span>
-                </td>
-              </tr>
-            </tbody>
-          </table> -->
-        <!-- </div> -->
         <div class="d-flex justify-content-end mt-4">
           <soft-button color="secondary" @click="closeModal">Close</soft-button>
         </div>
@@ -306,22 +247,6 @@ export default {
     };
   },
   watch: {
-    // eventData: {
-    //   handler(newVal) {
-    //     if (newVal) {
-    //       this.form = { ...newVal };
-    //       this.loadAttendees(newVal.id);
-    //     }
-    //   },
-    //   deep: true
-    // },
-    // showModal(newVal) {
-    //   if (!newVal) {
-    //     this.activeTab = 'details';
-    //     this.newAttendeeName = '';
-    //     this.attendees = [];
-    //   }
-    // }
     showModal(newVal) {
       console.log('woi');
       if (newVal) {

@@ -133,6 +133,12 @@ export default {
           { text: "Vendor Services", name: "Vendors", icon: "Shop" },
           { text: "Sign Out", name: "Sign Out", icon: "Shop" },
         ],
+        venue_owner: [
+          { text: "Dashboard", name: "Venue Owner Dashboard", icon: "Shop" },
+          { text: "Events", name: "Organizer Events", icon: "Shop" },
+          { text: "Venues", name: "Venue Owner Venue", icon: "Shop" },
+          { text: "Sign Out", name: "Sign Out", icon: "Shop" },
+        ],
       },
     };
   },

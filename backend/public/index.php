@@ -72,11 +72,26 @@ $app->group('/api', function ($group) {
 
     // --- Venue Routes ---
     // $group->get('/venues', VenueController::class . ':index');
-    $group->get('/venues', VenueController::class . ':getVenues');
-    $group->get('/venues/{id}', VenueController::class . ':show');
-    $group->post('/venues', VenueController::class . ':store');
-    $group->put('/venues/{id}', VenueController::class . ':update');
-    $group->delete('/venues/{id}', VenueController::class . ':destroy');
+    // $group->get('/venues', VenueController::class . ':getVenues');
+    // $group->get('/venues/{id}', VenueController::class . ':show');
+    // $group->post('/venues', VenueController::class . ':store');
+    // $group->put('/venues/{id}', VenueController::class . ':update');
+    // $group->delete('/venues/{id}', VenueController::class . ':destroy');
+
+         // List all venues for the authenticated venue owner
+    $group->get('/venues', [VenueController::class, 'getMyVenues']);
+
+    // Create a new venue
+    $group->post('/venues', [VenueController::class, 'createVenue']);
+
+    // Get a specific venue
+    $group->get('/venues/{id:[0-9]+}', [VenueController::class, 'getVenue']);
+
+    // Update a venue
+    $group->post('/venues/{id:[0-9]+}', [VenueController::class, 'updateVenue']);
+
+    // Delete a venue
+    $group->delete('/venues/{id:[0-9]+}', [VenueController::class, 'deleteVenue']);
 
     // --- Authenticated User Profile ---
     $group->get('/profile', AuthController::class . ':profile');

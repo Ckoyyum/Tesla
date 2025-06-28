@@ -11,6 +11,8 @@ import OrganizerDashboard from "@/views/OrganizerDashboard.vue";
 import OrganizerEvents from "@/views/OrganizerEvents.vue";
 import OrganizerVenues from "@/views/OrganizerVenues.vue";
 import OrganizerVendors from "@/views/OrganizerVendors.vue";
+import VenueOwnerDashboard from "@/views/VenueOwnerDashboard.vue";
+import VenueOwnerVenue from "@/views/VenueOwnerVenue.vue";
 import SignOut from "@/views/SignOut.vue";
 
 const routes = [
@@ -84,6 +86,22 @@ const routes = [
     name: "Vendors",
     component: OrganizerVendors,
   },
+  {
+    path: "/venue-owner-dashboard",
+    name: "Venue Owner Dashboard",
+    component: VenueOwnerDashboard,
+  },
+  {
+    path: "/venue-owner-venue",
+    name: "Venue Owner Venue",
+    component: VenueOwnerVenue,
+  },
+  // {
+  //   path: "/organizer-vendors",
+  //   name: "Vendors",
+  //   component: OrganizerVendors,
+  // },
+
 ];
 
 const router = createRouter({
@@ -92,15 +110,18 @@ const router = createRouter({
   linkActiveClass: "active",
 });
 
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token");
+// router.beforeEach((to, from, next) => {
+//   const token = localStorage.getItem("token");
 
-  if (!token && to.path !== "/login") {
-    next("/login"); // Redirect if not logged in
-  } else {
-    next(); // Proceed normally
-  }
-});
+//   if (!token && to.path !== "/login") {
+    
+//     // next("/login"); // Redirect if not logged in
+//     next(); // Proceed normally
+
+//   } else {
+//     next(); // Proceed normally
+//   }
+// });
 
 
 export default router;

@@ -60,8 +60,6 @@ export default {
         }
       });
 
-      console.log(res.data); 
-
 
       // Map your data to FullCalendar format
       const events = res.data.map(event => ({

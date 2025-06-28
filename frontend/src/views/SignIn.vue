@@ -71,6 +71,19 @@
                       >Sign up</router-link
                     >
                   </p>
+                  <!-- <button
+                    type="button"
+                    class="text-success text-gradient font-weight-bold btn btn-link p-0"
+                    @click="goToSignUp"
+                  >
+                    Sign up
+                  </button> -->
+
+                  <!-- <p class="mx-auto mb-4 text-sm" @click="goToSignUp">
+                    Don’t have an account?
+                    <span class="text-success text-gradient font-weight-bold">Sign up</span>
+                  </p> -->
+
                 </div>
               </div>
             </div>
@@ -167,6 +180,13 @@ export default {
         this.error =
           err.response?.data?.message || "Something went wrong during login.";
       }
+    },
+    async goToSignUp() {
+      console.log('signup clicked');
+      // this.confirmSignOut()
+      // this.$router.push({ name: 'Sign Up' })
+      this.$router.push("/sign-up");
+      console.log('llet you throguh');
     },
   },
   
