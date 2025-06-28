@@ -71,6 +71,8 @@ $app->add(new class implements MiddlewareInterface {
             return $response->withStatus(200); // Or 204 No Content, 200 is fine too.
         }
 
+        
+
         return $response;
     }
 });

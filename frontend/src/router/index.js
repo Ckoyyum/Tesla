@@ -13,6 +13,10 @@ import OrganizerVenues from "@/views/OrganizerVenues.vue";
 import OrganizerVendors from "@/views/OrganizerVendors.vue";
 import VenueOwnerDashboard from "@/views/VenueOwnerDashboard.vue";
 import VenueOwnerVenue from "@/views/VenueOwnerVenue.vue";
+import VendorDashboard from "@/views/VendorDashboard.vue";
+import VendorServices from "@/views/VendorServices.vue";
+import SurveyResponse from "@/views/SurveyResponse.vue";
+
 import SignOut from "@/views/SignOut.vue";
 
 const routes = [
@@ -96,12 +100,22 @@ const routes = [
     name: "Venue Owner Venue",
     component: VenueOwnerVenue,
   },
-  // {
-  //   path: "/organizer-vendors",
-  //   name: "Vendors",
-  //   component: OrganizerVendors,
-  // },
-
+  {
+    path: "/vendor-dashboard",
+    name: "Vendor Dashboard",
+    component: VendorDashboard,
+  },
+  {
+    path: "/vendor-services",
+    name: "Vendor Services",
+    component: VendorServices,
+  },
+  {
+  path: '/survey/:id',
+  name: "Survey Response",
+  component: SurveyResponse,
+  props: route => ({ eventId: route.params.id })
+  }
 ];
 
 const router = createRouter({
@@ -115,8 +129,8 @@ const router = createRouter({
 
 //   if (!token && to.path !== "/login") {
     
-//     // next("/login"); // Redirect if not logged in
-//     next(); // Proceed normally
+//     next("/login"); // Redirect if not logged in
+//     // next(); // Proceed normally
 
 //   } else {
 //     next(); // Proceed normally

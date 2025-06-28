@@ -124,7 +124,7 @@ export default {
     async fetchVenues() {
       try {
         const token = localStorage.getItem("token");
-        const res = await api.get("/api/venues", {
+        const res = await api.get("/api/organizer/venues", {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.venues = res.data;

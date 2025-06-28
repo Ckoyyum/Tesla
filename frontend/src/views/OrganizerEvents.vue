@@ -297,7 +297,7 @@ export default {
     },
     async fetchVenues() {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/venues", {
+      const res = await api.get("/api/organizer/venues", {
         headers: { Authorization: `Bearer ${token}` },
       });
       this.venues = res.data;
@@ -356,7 +356,7 @@ export default {
       if (!eventId) return;
       try {
         const token = localStorage.getItem('token');
-        const res = await api.get(`/api/attendees/event/${eventId}`, {
+        const res = await api.get(`/api/organizer/attendees/event/${eventId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.attendees = res.data;
@@ -370,7 +370,7 @@ export default {
       if (!this.newAttendeeName.trim() || !this.form.id) return;
       try {
         const token = localStorage.getItem('token');
-        const res = await api.post('/api/attendees', {
+        const res = await api.post('/api/organizer/attendees', {
           event_id: this.form.id,
           name: this.newAttendeeName,
         }, {
@@ -388,7 +388,7 @@ export default {
       if (!eventId) return;
       try {
         const token = localStorage.getItem('token');
-        const res = await api.get(`/api/attendance/event/${eventId}`, {
+        const res = await api.get(`/api/organizer/attendance/event/${eventId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.attendances = res.data;

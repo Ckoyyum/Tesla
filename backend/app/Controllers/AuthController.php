@@ -36,7 +36,7 @@ class AuthController
         $data = $request->getParsedBody(); // Should work with addBodyParsingMiddleware()
 
         // Debugging line: Check what data is actually received by the backend
-        error_log("Received data for registration: " . print_r($data, true));
+        // error_log("Received data for registration: " . print_r($data, true));
 
         // --- Input Validation ---
         // 1. Check for missing fields
@@ -79,7 +79,7 @@ class AuthController
         }
         
         $users = User::all(); // Get all users
-        error_log("All users: " . json_encode($users));
+        // error_log("All users: " . json_encode($users));
 
 
         // --- Check for existing user ---
