@@ -149,7 +149,7 @@ export default {
       console.log("Role:", this.role);
 
       try {
-        const res = await api.post("/register", {
+        const res = await api.post("/api/register", {
           username: this.username,
           email: this.email,
           password: this.password,

@@ -1,6 +1,6 @@
 <template>
   <div class="py-4 container-fluid">
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
           title="Today's Money"
@@ -61,11 +61,17 @@
           direction-reverse
         />
       </div>
-    </div>
+    </div> -->
     <div class="row my-4">
       <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
         <!-- <projects-card /> -->
-         <event-calendar />
+         <!-- <event-calendar /> -->
+         <!-- <event-calendar :events="calendarEvents" /> -->
+         <event-calendar
+            v-if="calendarEvents && calendarEvents.length"
+            :events="calendarEvents"
+          />
+
       </div>
       <div class="col-lg-4 col-md-6">
         <pie-chart
@@ -78,7 +84,7 @@
             // datasets: [
             //   {
             //     label: 'Users',
-            //     data: [5.0, 5.0, 5.0],
+            //     data: [ratings.venue, 5.0, 5.0],
             //     backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
             //     borderWidth: 1,
             //   },
@@ -99,7 +105,7 @@
   </div>
 </template>
 <script>
-import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
+// import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import PieChart from "@/examples/Charts/PieChart.vue"; 
 import EventCalendar from "@/examples/EventCalendar.vue";
 import api from "@/utils/api";
@@ -156,11 +162,12 @@ export default {
         venue: 0,
         services: 0,
         management: 0
-      }
+      },
+      calendarEvents: []
     };
   },
   components: {
-    MiniStatisticsCard,
+    // MiniStatisticsCard,
     PieChart,
     EventCalendar,
   },
@@ -168,7 +175,7 @@ export default {
     async fetchRatings() {
       try {
         const token = localStorage.getItem("token");
-        const res = await api.get("/api/surveys/ratings", {
+        const res = await api.get("/api/organizer/surveys/ratings", {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.ratings = {
@@ -176,13 +183,34 @@ export default {
           services: parseFloat(res.data.services_rating || 0).toFixed(1),
           management: parseFloat(res.data.management_rating || 0).toFixed(1)
         };
+        // console.log(this.ratings);
       } catch (err) {
         console.error("❌ Failed to fetch ratings:", err);
+      }
+    },
+    async fetchEvents() {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.get("/api/organizer/events", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.calendarEvents = res.data
+          .filter(event => event.status === 'ready')
+          .map(event => ({
+            title: event.title,
+            start: event.start_date.split(' ')[0],
+            end: event.end_date.split(' ')[0],
+            color: event.color || '#4caf50'
+          }));
+        console.log(this.calendarEvents);
+      } catch (err) {
+        console.error("❌ Error fetching calendar events:", err);
       }
     }
   },
   mounted() {
     this.fetchRatings();
+    this.fetchEvents();
   }
 };
 </script>

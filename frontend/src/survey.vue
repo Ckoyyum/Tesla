@@ -5,7 +5,7 @@
       this.$store.state.isTransparent,
       this.$store.state.isRTL ? 'fixed-end' : 'fixed-start',
     ]"
-    v-if="this.$store.state.showSidenav & !isSurveyRoute"
+    v-if="this.$store.state.showSidenav"
   />
   <main
     class="main-content position-relative max-height-vh-100 h-100 border-radius-lg"
@@ -13,11 +13,10 @@
   >
     <!-- nav -->
     <navbar
-
       :class="[navClasses]"
       :textWhite="this.$store.state.isAbsolute ? 'text-white opacity-8' : ''"
       :minNav="navbarMinimize"
-      v-if="this.$store.state.showNavbar && !isSurveyRoute"
+      v-if="this.$store.state.showNavbar"
     />
     <router-view />
     <!-- <app-footer v-show="this.$store.state.showFooter" /> -->
@@ -48,9 +47,6 @@ export default {
     ...mapMutations(["toggleConfigurator", "navbarMinimize"]),
   },
   computed: {
-    isSurveyRoute() {
-      return this.$route.path.startsWith('/survey');
-    },
     navClasses() {
       return {
         "position-sticky blur shadow-blur mt-4 left-auto top-1 z-index-sticky": this

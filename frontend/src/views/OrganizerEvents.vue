@@ -101,6 +101,11 @@
               Attendance
             </button>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" :class="{ active: activeTab === 'survey' }" @click="activeTab = 'survey'">
+              Survey
+            </button>
+          </li>
         </ul>
 
         <!-- Event Details Tab -->
@@ -202,7 +207,8 @@
               <tbody>
                 <tr v-for="attendance in attendances" :key="attendance.id">
                   <td>{{ attendance.attendee.name }}</td>
-                  <td>{{ attendance.attended_at }}</td>
+                  <!-- <td>{{ attendance.attended_at }}</td> -->
+                  <td>{{ new Date(attendance.attended_at).toLocaleString() }}</td>
                 </tr>
               </tbody>
             </table>
@@ -211,6 +217,51 @@
             <soft-button color="secondary" @click="closeModal">Close</soft-button>
           </div>
         </div>
+
+        <div v-if="activeTab === 'survey'">
+          <h5 class="mb-3">Survey</h5>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <!-- <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Attended</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="attendance in attendances" :key="attendance.id">
+                  <td>{{ attendance.attendee.name }}</td>
+                  <td>{{ attendance.attended_at }}</td>
+                </tr>
+              </tbody>
+            </table> -->
+
+            <label class="form-label">Survey Link</label>
+            <div class="input-group mb-3">
+              <input
+                type="text"
+                class="form-control"
+                :value="`http://localhost:8080/survey/${form.id}`"
+                readonly
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                @click="copySurveyLink"
+              >
+                Copy
+              </button>
+            </div>
+            
+          </div>
+          <div class="d-flex justify-content-end mt-4">
+            <soft-button color="secondary" @click="closeModal">Close</soft-button>
+          </div>
+        </div>
+
+
+
+
       </div>
     </div>
   </div>
@@ -250,6 +301,15 @@ export default {
     };
   },
   methods: {
+    copySurveyLink() {
+      const link = `${window.location.origin}/survey/${this.form.id}`;
+      navigator.clipboard.writeText(link).then(() => {
+        alert("Survey link copied to clipboard!");
+      }).catch(err => {
+        console.error("Failed to copy link: ", err);
+        alert("Failed to copy the link.");
+      });
+    },
     async fetchEvents() {
       try {
         const token = localStorage.getItem("token");

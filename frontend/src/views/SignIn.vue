@@ -160,7 +160,7 @@ export default {
       // }
       // this.error = "";
       try {
-        const res = await api.post("/login", {
+        const res = await api.post("/api/login", {
           email: this.email,
           password: this.password,
         });

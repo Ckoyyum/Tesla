@@ -1,6 +1,6 @@
 <template>
   <div class="py-4 container-fluid">
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
           title="Vendor"
@@ -61,7 +61,7 @@
           direction-reverse
         />
       </div>
-    </div>
+    </div> -->
     <div class="row my-4">
       <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
         <!-- <projects-card /> -->
@@ -89,7 +89,7 @@
   </div>
 </template>
 <script>
-import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
+// import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import PieChart from "@/examples/Charts/PieChart.vue"; 
 import EventCalendar from "@/examples/EventCalendar.vue";
 import US from "../assets/img/icons/flags/US.png";
@@ -144,7 +144,7 @@ export default {
     };
   },
   components: {
-    MiniStatisticsCard,
+    // MiniStatisticsCard,
     PieChart,
     EventCalendar,
   },
